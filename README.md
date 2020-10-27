@@ -4,6 +4,8 @@ OpenGL Loader Generator is a generator of [OpenGL loading library](https://www.k
 
 # Generation
 
+The generator itself is a single python script `generator.py`. It needs a configuration file to work, though.
+
 To generate the loading library (header & source files), run
 `./generator.py config.json` 
 
