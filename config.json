@@ -1,0 +1,20 @@
+{
+	"spec_file": "gl.xml",
+	"api": "gl",
+	"version": "3.3",
+	"profile": "core",
+	"extensions": [
+		"ARB_texture_filter_anisotropic",
+		"ARB_compute_shader"
+	],
+	"indent": "\t",
+	"namespace": "gl",
+	"loader_namespace": "sys",
+	"internal_namespace": "internal",
+	"internal_prefix": "",
+	"undef": 4,
+	"strip": true,
+	"out_header": "gl.hpp",
+	"out_source": "gl.cpp",
+	"include": "\"gl.hpp\""
+}
