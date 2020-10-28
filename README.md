@@ -25,8 +25,8 @@ The following generator options are supported:
 | `profile` | `string` | `"core"` | The API profile to load (may be empty) |
 | `extensions` | `[string]` | `[]` | The list of extensions to load |
 | `indent` | `string` | `"\t"` | The string to use as indentation in the generated code |
-| `namespace` | `string` | `"gl"` | The namespace that will be used for generated API functions and constant (empty namespace means using global namespace) |
-| `loader_namespace` | `string` | `"sys"` | The namespace that will be used for the loader library public functions, relative to the `gl` namespace (empty namespace means using parent namespace) |
+| `namespace` | `string` | `"gl"` | The namespace that will be used for generated API functions and constants (empty namespace means using global namespace) |
+| `loader_namespace` | `string` | `"sys"` | The namespace that will be used for the loader library public interface, relative to the `gl` namespace (empty namespace means using parent namespace) |
 | `internal_namespace` | `string` | `"internal"` | The namespace that will be used for the loader library internals, relative to the `gl` namespace (empty namespace means using parent namespace) |
 | `internal_prefix` | `string` | `""` | The prefix that will be appended to all OpenGL function names in the loader library internals (**not** the loaded OpenGL functions) |
 | `undef` | `int` | `4` | All OpenGL constants of this length or shorter will be `#undef`ined in the beginning of the library header (some systems may define `TRUE`, `ZERO`, etc) |
@@ -39,7 +39,7 @@ All non-absolute paths are resolved relative to current working directory.
 
 The generated functions are in C++, thus adhere to C++ linkage & name mangling rules.
 
-Note that with `config.namespace = ""` and `config.strip = false` make the generated functions appear in the global namespace with names identical to how they are defined in OpenGL (e.g. `glClear` in the global namespace, etc). This may interfere with already existing OpenGL functions, use at your own risk (however the library prevents including OpenGL headers alongside itself, and OpenGL functions have `C` linkage, so it should be hard to actually face any problems).
+Note that options `config.namespace = ""` and `config.strip = false` make the generated functions appear in the global namespace with names identical to how they are defined in OpenGL (e.g. `glClear` in the global namespace, etc). This may interfere with already existing OpenGL functions, use at your own risk (however the library prevents including OpenGL headers alongside itself, and OpenGL functions have `C` linkage, so it should be hard to actually face any problems).
 
 See the examples of generated [header](https://github.com/lisyarus/opengl-loader-generator/blob/master/gl.hpp) and [source](https://github.com/lisyarus/opengl-loader-generator/blob/master/gl.cpp) for further details on the structure of the generated files.
 
