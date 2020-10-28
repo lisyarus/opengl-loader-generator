@@ -15,5 +15,6 @@
 	"undef": 4,
 	"strip": true,
 	"out_header": "gl.hpp",
-	"out_source": "gl.cpp"
+	"out_source": "gl.cpp",
+	"include": "\"gl.hpp\""
 }

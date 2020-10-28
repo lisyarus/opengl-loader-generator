@@ -27,6 +27,7 @@ default_config.strip = True
 
 default_config.out_header = 'gl.hpp'
 default_config.out_source = 'gl.cpp'
+default_config.include = '"gl.hpp"'
 
 # Parse config
 
@@ -55,6 +56,7 @@ config.strip = cfg.get('strip', default_config.strip)
 
 config.out_header = cfg.get('out_header', default_config.out_header)
 config.out_source = cfg.get('out_source', default_config.out_source)
+config.include    = cfg.get('include',    "\"{}\"".format(config.out_header))
 
 # Helper variables & functions
 
@@ -221,13 +223,44 @@ for nextension in root.find('extensions').findall('extension'):
 
 # Write the header file
 
+header_definitions = """
+// Prevent inclusion of other OpenGL-related headers
+
+#if defined(__glew_h__) || defined(__GLEW_H__)
+#error Attempt to include auto-generated header after including glew.h
+#endif
+#if defined(__gl_h_) || defined(__GL_H__)
+#error Attempt to include auto-generated header after including gl.h
+#endif
+#if defined(__glext_h_) || defined(__GLEXT_H_)
+#error Attempt to include auto-generated header after including glext.h
+#endif
+#if defined(__gltypes_h_)
+#error Attempt to include auto-generated header after gltypes.h
+#endif
+#if defined(__gl_ATI_h_)
+#error Attempt to include auto-generated header after including glATI.h
+#endif
+
+#define __glew_h__
+#define __GLEW_H__
+#define __gl_h_
+#define __GL_H__
+#define __glext_h_
+#define __GLEXT_H_
+#define __gltypes_h_
+#define __gl_ATI_h_
+
+"""
+
 with open(config.out_header, 'wt') as header:
 
     pointers_defined = set()
     enums_defined = set()
     functions_defined = set()
 
-    header.write("#pragma once\n\n")
+    header.write("#pragma once\n")
+    header.write(header_definitions)
 
     # Write undefs
     if config.undef > 0:
@@ -330,7 +363,7 @@ with open(config.out_header, 'wt') as header:
 
 # Write the source file
 
-additional_definitions = """
+source_definitions = """
 #include <unordered_set>
 #include <string>
 
@@ -380,28 +413,28 @@ static void * get_proc_address(const char *func)
 #pragma warning(disable: 4996)
 #endif
 
-static int test_pointer(const PROC pTest)
+static int test_pointer(const PROC p)
 {
-\tptrdiff_t iTest;
-\tif(!pTest) return 0;
-\tiTest = (ptrdiff_t)pTest;
-	
-\tif(iTest == 1 || iTest == 2 || iTest == 3 || iTest == -1) return 0;
-	
+\tptrdiff_t i;
+\tif (!p) return 0;
+\ti = (ptrdiff_t)p;
+
+\tif(i == 1 || i == 2 || i == 3 || i == -1) return 0;
+
 \treturn 1;
 }
 
 static void * get_proc_address(const char *name)
 {
-\tstatic HMODULE glMod = GetModuleHandleA("opengl32.dll");
+\tstatic HMODULE image = GetModuleHandleA("opengl32.dll");
 
-\tPROC pFunc = wglGetProcAddress(reinterpret_cast<LPCSTR>(name));
-\tif(TestPointer(pFunc))
+\tPROC func = wglGetProcAddress(reinterpret_cast<LPCSTR>(name));
+\tif (test_pointer(func))
 \t{
-\t\treturn reinterpret_cast<void*>(pFunc);
+\t\treturn reinterpret_cast<void*>(func);
 \t}
 
-\treturn reinterpret_cast<void*>GetProcAddress(glMod, reinterpret_cast<LPCSTR>(name));
+\treturn reinterpret_cast<void*>(GetProcAddress(image, reinterpret_cast<LPCSTR>(name)));
 }
 	
 #else // GLX
@@ -416,7 +449,9 @@ static void * get_proc_address(const char *func)
 
 with open(config.out_source, 'wt') as source:
 
-    source.write(additional_definitions)
+    source.write("#include {}\n\n".format(config.include))
+
+    source.write(source_definitions)
 
     if config.namespace:
         source.write("namespace {}\n{{\n\n".format(config.namespace))

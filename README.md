@@ -2,6 +2,10 @@
 
 OpenGL Loader Generator is a generator of [OpenGL loading library](https://www.khronos.org/opengl/wiki/OpenGL_Loading_Library) targetting C++ that supports different OpenGL versions, profiles, extensions, and even has adjustable code formatting. The generated library loads OpenGL function pointers & can be used in place of system-provided OpenGL header files (which [are known](https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions#Function_Prototypes) to contain definitions for only a few extremely old OpenGL verions). The library has no dependencies other than an OpenGL implementation and a C++11 compiler.
 
+The project has been tested under Linux with GCC 9.2 & under Windows with MinGW 9.3. If for some reason it doesn't work for your platform, be welcome to post an issue or (better) make a PR.
+
+The project is heavily influenced by [glLoadGen](https://bitbucket.org/alfonse/glloadgen) (no longer supported).
+
 # Generation
 
 The generator itself is a single python script `generator.py`. It needs a configuration file to work, though.
@@ -29,11 +33,13 @@ The following generator options are supported:
 | `strip` | `bool` | `true` | Whether to strip the `gl` and `GL_` prefixes from OpenGL functions and constants (makes sense when using a namespace) |
 | `out_header` | `string` | `"gl.hpp"` | The path to the generated loader library header |
 | `out_source` | `string` | `"gl.cpp"` | The path to the generated loader library source |
+| `include` | `string` | `"\"${config.out_header}\""` | The string to be used by the library source to include the library header (including the `""` or `<>`); that is, the library source will contain a line `#include ${config.include}` |
 
 All non-absolute paths are resolved relative to current working directory.
-Note that the generated source file **does not** include the generated header file to make them easily relocatable (and for some technical reasons as well).
 
 The generated functions are in C++, thus adhere to C++ linkage & name mangling rules.
+
+Note that with `config.namespace = ""` and `config.strip = false` make the generated functions appear in the global namespace with names identical to how they are defined in OpenGL (e.g. `glClear` in the global namespace, etc). This may interfere with already existing OpenGL functions, use at your own risk (however the library prevents including OpenGL headers alongside itself, and OpenGL functions have `C` linkage, so it should be hard to actually face any problems).
 
 See the examples of generated [header](https://github.com/lisyarus/opengl-loader-generator/blob/master/gl.hpp) and [source](https://github.com/lisyarus/opengl-loader-generator/blob/master/gl.cpp) for further details on the structure of the generated files.
 
