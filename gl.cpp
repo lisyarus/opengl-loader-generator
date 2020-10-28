@@ -1,3 +1,5 @@
+#include "gl.hpp"
+
 
 #include <unordered_set>
 #include <string>
@@ -52,28 +54,28 @@ namespace gl
 		#pragma warning(disable: 4996)
 		#endif
 		
-		static int test_pointer(const PROC pTest)
+		static int test_pointer(const PROC p)
 		{
-			ptrdiff_t iTest;
-			if(!pTest) return 0;
-			iTest = (ptrdiff_t)pTest;
-			
-			if(iTest == 1 || iTest == 2 || iTest == 3 || iTest == -1) return 0;
-			
+			ptrdiff_t i;
+			if (!p) return 0;
+			i = (ptrdiff_t)p;
+		
+			if(i == 1 || i == 2 || i == 3 || i == -1) return 0;
+		
 			return 1;
 		}
 		
 		static void * get_proc_address(const char *name)
 		{
-			static HMODULE glMod = GetModuleHandleA("opengl32.dll");
+			static HMODULE image = GetModuleHandleA("opengl32.dll");
 		
-			PROC pFunc = wglGetProcAddress(reinterpret_cast<LPCSTR>(name));
-			if(TestPointer(pFunc))
+			PROC func = wglGetProcAddress(reinterpret_cast<LPCSTR>(name));
+			if (test_pointer(func))
 			{
-				return reinterpret_cast<void*>(pFunc);
+				return reinterpret_cast<void*>(func);
 			}
 		
-			return reinterpret_cast<void*>GetProcAddress(glMod, reinterpret_cast<LPCSTR>(name));
+			return reinterpret_cast<void*>(GetProcAddress(image, reinterpret_cast<LPCSTR>(name)));
 		}
 			
 		#else // GLX
