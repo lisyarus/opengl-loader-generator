@@ -351,6 +351,8 @@ with open(config.out_header, 'wt') as header:
     header.write("{}{}int minor_version();\n".format(gl_indent, sys_indent))
     header.write("\n")
 
+    header.write("{}{}bool has_extension(const char * name);\n".format(gl_indent, sys_indent))
+
     for name in api_by_extension.keys():
         header.write("{}{}bool ext_{}();\n".format(gl_indent, sys_indent, name[3:]))
     header.write("\n")
@@ -553,6 +555,8 @@ with open(config.out_source, 'wt') as source:
     source.write("{}{}const char * api(){{ return \"{}\"; }}\n\n".format(gl_indent, sys_indent, api_name[config.api]))
     source.write("{}{}int major_version(){{ return {}; }}\n\n".format(gl_indent, sys_indent, config.version[0]))
     source.write("{}{}int minor_version(){{ return {}; }}\n\n".format(gl_indent, sys_indent, config.version[2]))
+
+    source.write("{}{}bool has_extension(const char * name){{ return extensions.contains(name); }}\n\n".format(gl_indent, sys_indent))
 
     for name in api_by_extension.keys():
         source.write("{}{}bool ext_{}(){{ return ext_{}_loaded; }}\n".format(gl_indent, int_indent, name[3:], name))

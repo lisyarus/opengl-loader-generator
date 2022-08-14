@@ -1252,6 +1252,8 @@ namespace gl
 
 		int minor_version(){ return 3; }
 
+		bool has_extension(const char * name){ return extensions.contains(name); }
+
 		bool ext_ARB_compute_shader(){ return ext_GL_ARB_compute_shader_loaded; }
 		bool ext_ARB_texture_filter_anisotropic(){ return ext_GL_ARB_texture_filter_anisotropic_loaded; }
 

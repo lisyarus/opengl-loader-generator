@@ -1791,6 +1791,7 @@ namespace gl
 		int major_version();
 		int minor_version();
 
+		bool has_extension(const char * name);
 		bool ext_ARB_compute_shader();
 		bool ext_ARB_texture_filter_anisotropic();
 
