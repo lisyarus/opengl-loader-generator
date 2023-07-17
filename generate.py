@@ -376,6 +376,8 @@ source_definitions = """
 #include <stdio.h>
 #elif defined(_WIN32)
 #include <windows.h>
+#elif defined(__ANDROID__)
+#include <EGL/egl.h>
 #else
 #include <GL/glx.h>
 #endif
@@ -437,6 +439,13 @@ static void * get_proc_address(const char *name)
 \t}
 
 \treturn reinterpret_cast<void*>(GetProcAddress(image, reinterpret_cast<LPCSTR>(name)));
+}
+
+#elif defined(__ANDROID__)
+
+static void * get_proc_address(const char *func)
+{
+\treturn reinterpret_cast<void *>(eglGetProcAddress(func));
 }
 	
 #else // GLX
