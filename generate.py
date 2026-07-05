@@ -380,7 +380,7 @@ source_definitions = """
 #include <stdio.h>
 #elif defined(_WIN32)
 #include <windows.h>
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__EMSCRIPTEN__)
 #include <EGL/egl.h>
 #else
 #include <GL/glx.h>
@@ -445,7 +445,7 @@ static void * get_proc_address(const char *name)
 \treturn reinterpret_cast<void*>(GetProcAddress(image, reinterpret_cast<LPCSTR>(name)));
 }
 
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__EMSCRIPTEN__)
 
 static void * get_proc_address(const char *func)
 {
