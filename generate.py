@@ -64,12 +64,16 @@ api_name = {
     'gl': "OpenGL",
     'gles1': "OpenGL ES",
     'gles2': "OpenGL ES",
+    'gles3': "OpenGL ES",
     'glsc2': "OpenGL SC",
 }
 
 if config.api not in api_name:
     print('Unknown api:', config.api)
     sys.exit(1)
+
+if config.api == 'gles3':
+    config.api = 'gles2'
 
 indent = config.indent
 gl_indent = indent
