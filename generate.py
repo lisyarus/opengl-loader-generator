@@ -22,6 +22,7 @@ default_config.namespace = 'gl'
 default_config.loader_namespace = 'sys'
 default_config.internal_namespace = 'internal'
 default_config.internal_prefix = ''
+default_config.shader_prelude = False
 
 default_config.undef = 4
 default_config.strip = True
@@ -54,6 +55,7 @@ config.namespace          = cfg.get('namespace',          default_config.namespa
 config.loader_namespace   = cfg.get('loader_namespace',   default_config.loader_namespace  )
 config.internal_namespace = cfg.get('internal_namespace', default_config.internal_namespace)
 config.internal_prefix    = cfg.get('internal_prefix',    default_config.internal_prefix   )
+config.shader_prelude     = cfg.get('shader_prelude',     default_config.shader_prelude    )
 
 config.undef = cfg.get('undef', default_config.undef)
 config.strip = cfg.get('strip', default_config.strip)
@@ -81,6 +83,8 @@ if config.api not in api_name:
 
 if config.api == 'gles3':
     config.api = 'gles2'
+
+is_gles = config.api.startswith('gles')
 
 indent = config.indent
 gl_indent = indent
@@ -289,6 +293,8 @@ with open(config.out_header, 'wt') as header:
     header.write("\n")
 
     header.write("#include <unordered_set>\n")
+    if config.shader_prelude:
+        header.write("#include <string_view>\n")
     header.write("\n")
 
     if config.namespace:
@@ -364,9 +370,10 @@ with open(config.out_header, 'wt') as header:
     header.write("{}{}int major_version();\n".format(gl_indent, sys_indent))
     header.write("{}{}int minor_version();\n".format(gl_indent, sys_indent))
     header.write("{}{}std::unordered_set<std::string> const & extensions();\n".format(gl_indent, sys_indent))
-    header.write("\n")
 
-    header.write("{}{}bool has_extension(const char * name);\n".format(gl_indent, sys_indent))
+    if config.shader_prelude:
+        header.write("{}{}std::string_view shader_prelude();\n".format(gl_indent, sys_indent))
+    header.write("\n")
 
     for name in api_by_extension.keys():
         header.write("{}{}bool ext_{}();\n".format(gl_indent, sys_indent, name[3:]))
@@ -471,6 +478,13 @@ static void * get_proc_address(const char *func)
 }
 
 #endif
+"""
+
+gles_shader_prelude = """
+precision highp int;
+precision highp float;
+precision highp sampler2D;
+precision highp usampler2D;
 """
 
 with open(config.out_source, 'wt') as source:
@@ -581,7 +595,16 @@ with open(config.out_source, 'wt') as source:
     source.write("{}{}int minor_version(){{ return {}; }}\n\n".format(gl_indent, sys_indent, config.version[2]))
     source.write("{}{}std::unordered_set<std::string> const & extensions(){{ return extensions_set; }}\n\n".format(gl_indent, sys_indent, config.version[2]))
 
-    source.write("{}{}bool has_extension(const char * name){{ return extensions.contains(name); }}\n\n".format(gl_indent, sys_indent))
+    if config.shader_prelude:
+        source.write("{}{}std::string_view shader_prelude(){{ return R\"(#version {}{}0".format(gl_indent, sys_indent, config.version[0], config.version[2]))
+        if is_gles:
+            source.write(" es")
+        elif config.profile == 'core':
+            source.write(" core")
+        source.write("\n")
+        if is_gles:
+            source.write(gles_shader_prelude)
+        source.write(")\";\n{}{}}}\n\n".format(gl_indent, sys_indent))
 
     for name in api_by_extension.keys():
         source.write("{}{}bool ext_{}(){{ return ext_{}_loaded; }}\n".format(gl_indent, int_indent, name[3:], name))

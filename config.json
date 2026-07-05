@@ -12,6 +12,7 @@
 	"loader_namespace": "sys",
 	"internal_namespace": "internal",
 	"internal_prefix": "",
+	"shader_prelude": true,
 	"undef": 4,
 	"strip": true,
 	"out_header": "gl.hpp",
