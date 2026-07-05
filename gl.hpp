@@ -147,6 +147,9 @@ typedef unsigned short GLhalfNV;
 typedef GLintptr GLvdpauSurfaceNV;
 typedef void (GLVULKANPROCNV)(void);
 
+#include <unordered_set>
+#include <string_view>
+
 namespace gl
 {
 
@@ -1790,8 +1793,9 @@ namespace gl
 		const char * api();
 		int major_version();
 		int minor_version();
+		std::unordered_set<std::string> const & extensions();
+		std::string_view shader_prelude();
 
-		bool has_extension(const char * name);
 		bool ext_ARB_compute_shader();
 		bool ext_ARB_texture_filter_anisotropic();
 

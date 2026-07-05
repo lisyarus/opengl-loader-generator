@@ -11,7 +11,7 @@
 #include <stdio.h>
 #elif defined(_WIN32)
 #include <windows.h>
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__EMSCRIPTEN__)
 #include <EGL/egl.h>
 #else
 #include <GL/glx.h>
@@ -80,7 +80,7 @@ namespace gl
 			return reinterpret_cast<void*>(GetProcAddress(image, reinterpret_cast<LPCSTR>(name)));
 		}
 		
-		#elif defined(__ANDROID__)
+		#elif defined(__ANDROID__) || defined(__EMSCRIPTEN__)
 		
 		static void * get_proc_address(const char *func)
 		{
@@ -1237,7 +1237,7 @@ namespace gl
 			return true;
 		}
 
-		static std::unordered_set<std::string> extensions;
+		static std::unordered_set<std::string> extensions_set;
 		bool initialize()
 		{
 			if (!load_core()) return false;
@@ -1245,11 +1245,11 @@ namespace gl
 			GLint num_extensions;
 			internal::glGetIntegerv(0x821D, &num_extensions);
 			for (GLint i = 0; i < num_extensions; ++i)
-				extensions.insert(reinterpret_cast<const char *>(internal::glGetStringi(0x1F03, i)));
+				extensions_set.insert(reinterpret_cast<const char *>(internal::glGetStringi(0x1F03, i)));
 
-			if (extensions.count("GL_ARB_compute_shader") > 0)
+			if (extensions_set.count("GL_ARB_compute_shader") > 0)
 				ext_GL_ARB_compute_shader_loaded = load_ext_GL_ARB_compute_shader();
-			if (extensions.count("GL_ARB_texture_filter_anisotropic") > 0)
+			if (extensions_set.count("GL_ARB_texture_filter_anisotropic") > 0)
 				ext_GL_ARB_texture_filter_anisotropic_loaded = load_ext_GL_ARB_texture_filter_anisotropic();
 
 			return true;
@@ -1261,7 +1261,11 @@ namespace gl
 
 		int minor_version(){ return 3; }
 
-		bool has_extension(const char * name){ return extensions.contains(name); }
+		std::unordered_set<std::string> const & extensions(){ return extensions_set; }
+
+		std::string_view shader_prelude(){ return R"(#version 330 core
+)";
+		}
 
 		bool ext_ARB_compute_shader(){ return ext_GL_ARB_compute_shader_loaded; }
 		bool ext_ARB_texture_filter_anisotropic(){ return ext_GL_ARB_texture_filter_anisotropic_loaded; }
