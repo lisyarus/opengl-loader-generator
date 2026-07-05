@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import json
 
@@ -35,7 +36,10 @@ if len(sys.argv) != 2:
 	print("Usage: {} <config-file-json>".format(sys.argv[0]))
 	sys.exit(1)
 
-cfg = json.load(open(sys.argv[1], 'rt'))
+config_path = sys.argv[1]
+config_dir = os.path.dirname(config_path)
+
+cfg = json.load(open(config_path, 'rt'))
 
 config = Object()
 
@@ -57,6 +61,9 @@ config.strip = cfg.get('strip', default_config.strip)
 config.out_header = cfg.get('out_header', default_config.out_header)
 config.out_source = cfg.get('out_source', default_config.out_source)
 config.include    = cfg.get('include',    "\"{}\"".format(config.out_header))
+
+config.out_header = os.path.join(config_dir, config.out_header)
+config.out_source = os.path.join(config_dir, config.out_source)
 
 # Helper variables & functions
 
