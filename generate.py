@@ -288,6 +288,9 @@ with open(config.out_header, 'wt') as header:
         header.write(t + "\n")
     header.write("\n")
 
+    header.write("#include <unordered_set>\n")
+    header.write("\n")
+
     if config.namespace:
         header.write("namespace {}\n{{\n\n".format(config.namespace))
 
@@ -360,6 +363,7 @@ with open(config.out_header, 'wt') as header:
     header.write("{}{}const char * api();\n".format(gl_indent, sys_indent))
     header.write("{}{}int major_version();\n".format(gl_indent, sys_indent))
     header.write("{}{}int minor_version();\n".format(gl_indent, sys_indent))
+    header.write("{}{}std::unordered_set<std::string> const & extensions();\n".format(gl_indent, sys_indent))
     header.write("\n")
 
     header.write("{}{}bool has_extension(const char * name);\n".format(gl_indent, sys_indent))
@@ -553,7 +557,7 @@ with open(config.out_source, 'wt') as source:
         source.write("{}{}{}return true;\n".format(gl_indent, sys_indent, indent))
         source.write("{}{}}}\n\n".format(gl_indent, sys_indent))
 
-    source.write("{}{}static std::unordered_set<std::string> extensions;\n".format(gl_indent, sys_indent))
+    source.write("{}{}static std::unordered_set<std::string> extensions_set;\n".format(gl_indent, sys_indent))
 
     source.write("{}{}bool initialize()\n".format(gl_indent, sys_indent))
     source.write("{}{}{{\n".format(gl_indent, sys_indent))
@@ -562,10 +566,10 @@ with open(config.out_source, 'wt') as source:
     source.write("{}{}{}GLint num_extensions;\n".format(gl_indent, sys_indent, indent))
     source.write("{}{}{}{}({}, &num_extensions);\n".format(gl_indent, sys_indent, indent, internal_name('glGetIntegerv', True), enums['GL_NUM_EXTENSIONS']['value']))
     source.write("{}{}{}for (GLint i = 0; i < num_extensions; ++i)\n".format(gl_indent, sys_indent, indent))
-    source.write("{}{}{}{}extensions.insert(reinterpret_cast<const char *>({}({}, i)));\n".format(gl_indent, sys_indent, indent, indent, internal_name('glGetStringi', True), enums['GL_EXTENSIONS']['value']))
+    source.write("{}{}{}{}extensions_set.insert(reinterpret_cast<const char *>({}({}, i)));\n".format(gl_indent, sys_indent, indent, indent, internal_name('glGetStringi', True), enums['GL_EXTENSIONS']['value']))
     source.write("\n")
     for name in api_by_extension.keys():
-        source.write("{}{}{}if (extensions.count(\"{}\") > 0)\n".format(gl_indent, int_indent, indent, name))
+        source.write("{}{}{}if (extensions_set.count(\"{}\") > 0)\n".format(gl_indent, int_indent, indent, name))
         source.write("{}{}{}{}ext_{}_loaded = load_ext_{}();\n".format(gl_indent, int_indent, indent, indent, name, name))
     source.write("\n")
     source.write("{}{}{}return true;\n".format(gl_indent, sys_indent, indent))
@@ -575,6 +579,7 @@ with open(config.out_source, 'wt') as source:
     source.write("{}{}const char * api(){{ return \"{}\"; }}\n\n".format(gl_indent, sys_indent, api_name[config.api]))
     source.write("{}{}int major_version(){{ return {}; }}\n\n".format(gl_indent, sys_indent, config.version[0]))
     source.write("{}{}int minor_version(){{ return {}; }}\n\n".format(gl_indent, sys_indent, config.version[2]))
+    source.write("{}{}std::unordered_set<std::string> const & extensions(){{ return extensions_set; }}\n\n".format(gl_indent, sys_indent, config.version[2]))
 
     source.write("{}{}bool has_extension(const char * name){{ return extensions.contains(name); }}\n\n".format(gl_indent, sys_indent))
 
