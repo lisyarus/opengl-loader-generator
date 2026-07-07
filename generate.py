@@ -293,6 +293,7 @@ with open(config.out_header, 'wt') as header:
     header.write("\n")
 
     header.write("#include <unordered_set>\n")
+    header.write("#include <string>\n")
     if config.shader_prelude:
         header.write("#include <string_view>\n")
     header.write("\n")
