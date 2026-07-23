@@ -148,6 +148,7 @@ typedef GLintptr GLvdpauSurfaceNV;
 typedef void (GLVULKANPROCNV)(void);
 
 #include <unordered_set>
+#include <string>
 #include <string_view>
 
 namespace gl

@@ -486,6 +486,7 @@ precision highp int;
 precision highp float;
 precision highp sampler2D;
 precision highp usampler2D;
+precision highp sampler2DShadow;
 """
 
 with open(config.out_source, 'wt') as source:
